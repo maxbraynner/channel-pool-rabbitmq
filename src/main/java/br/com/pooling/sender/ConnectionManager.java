@@ -61,9 +61,8 @@ public class ConnectionManager implements ObjectPoolFactory<Channel> {
 
 	@Override
 	public Channel create() {
-		manageConnection();
 		try {
-			return connection.createChannel();
+			return manageConnection().createChannel();
 		} catch (IOException up) {
 			throw new RuntimeException(up);
 		}
