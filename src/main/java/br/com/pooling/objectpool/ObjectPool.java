@@ -29,7 +29,7 @@ public abstract class ObjectPool<T> {
 			object = factory.create();
 		}
 		
-		 R result = executor.exec(object);
+		 R result = executor.execute(object);
 		 
 		 blockingQueue.add(object);
 		 
