@@ -1,4 +1,4 @@
-package br.com.teste;
+package br.com.pooling;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
