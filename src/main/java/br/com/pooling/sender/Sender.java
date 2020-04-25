@@ -10,18 +10,17 @@ public class Sender {
 
 	public static void main(String[] argv) throws Exception {
 		final int messageCount = 10;
-		final int poolSize = 100;
+		final int executorSize = 100;
+		final int threadSize = 1000;
 
-		ExecutorService executor = Executors.newFixedThreadPool(poolSize);
-
-		for (int i = 0; i < poolSize; ++i) {
+		ExecutorService executor = Executors.newFixedThreadPool(executorSize);
+		for (int i = 0; i < threadSize; ++i) {
 			executor.execute(() -> {
-				Instant start = Instant.now();
 				try {
-					QueueManager instance = QueueManager.getInstance();
+					Instant start = Instant.now();
 
 					for (int j = 0; j < messageCount; j++) {
-						instance.pushMessage(
+						QueueUtil.pushMessage(Queue.HELLO,
 								MessageFormat.format("[{0}] - Message: {1}", Thread.currentThread().getName(), j));
 					}
 

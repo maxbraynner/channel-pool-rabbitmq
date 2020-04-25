@@ -7,6 +7,8 @@ import br.com.pooling.objectpool.ObjectPoolFactory;
 
 public class ChannelPool extends ObjectPool<Channel> {
 
+	private static final int POOL_SIZE = 10;
+	
 	private static ChannelPool instance = null;
 
 	private ChannelPool(ObjectPoolFactory<Channel> factory, int poolSize) {
@@ -22,7 +24,7 @@ public class ChannelPool extends ObjectPool<Channel> {
 			if (instance != null) {
 				return instance;
 			}
-			instance = new ChannelPool(QueueManager.getInstance(), 10);
+			instance = new ChannelPool(ConnectionManager.getInstance(), POOL_SIZE);
 			return instance;
 		}
 	}

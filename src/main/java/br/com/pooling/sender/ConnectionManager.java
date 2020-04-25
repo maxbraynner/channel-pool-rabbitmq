@@ -9,31 +9,33 @@ import com.rabbitmq.client.ConnectionFactory;
 
 import br.com.pooling.objectpool.ObjectPoolFactory;
 
-public class QueueManager implements ObjectPoolFactory<Channel> {
+public class ConnectionManager implements ObjectPoolFactory<Channel> {
 
-	private static QueueManager instance;
+	private static ConnectionManager instance;
 
 	private final ConnectionFactory factory;
 	private Connection connection;
 
-	private QueueManager() throws IOException, TimeoutException {
+	private ConnectionManager() throws IOException, TimeoutException {
 		factory = new ConnectionFactory();
-		factory.setHost("localhost");
+//		factory.setHost("localhost");
+//		factory.setUsername(username);
+//		factory.setPassword(password);
 
 		manageConnection();
 	}
 
-	public static QueueManager getInstance() {
+	public static ConnectionManager getInstance() {
 		try {
 			if (instance != null) {
 				return instance;
 			}
 
-			synchronized (QueueManager.class) {
+			synchronized (ConnectionManager.class) {
 				if (instance != null) {
 					return instance;
 				}
-				instance = new QueueManager();
+				instance = new ConnectionManager();
 				return instance;
 			}
 		} catch (IOException | TimeoutException up) {
@@ -41,30 +43,18 @@ public class QueueManager implements ObjectPoolFactory<Channel> {
 		}
 	}
 
-	private void manageConnection() throws IOException, TimeoutException {
+	private Connection manageConnection() throws IOException, TimeoutException {
 		if (connection != null && connection.isOpen()) {
-			return;
+			return connection;
 		}
 
 		synchronized (this) {
 			if (connection != null && connection.isOpen()) {
-				return;
+				return connection;
 			}
 			connection = factory.newConnection();
+			return connection;
 		}
-	}
-
-	public boolean pushMessage(final String message) {
-		ChannelPool instance = ChannelPool.getInstance();
-		return instance.execute(channel -> {
-			try {
-				channel.basicPublish("", "hello", null, message.getBytes("UTF-8"));
-				return true;
-			} catch (IOException up) {
-				up.printStackTrace();
-				return false;
-			}
-		});
 	}
 
 	@Override

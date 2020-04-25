@@ -10,7 +10,7 @@ public abstract class ObjectPool<T> {
 	private final BlockingQueue<T> blockingQueue;
 	
 	private long timeout = 60;
-	private TimeUnit unit = TimeUnit.SECONDS;
+	private TimeUnit timeoutUnit = TimeUnit.SECONDS;
 
 	public ObjectPool(ObjectPoolFactory<T> factory, int poolSize) {
 		super();
@@ -42,7 +42,7 @@ public abstract class ObjectPool<T> {
 	 */
 	private T poll() {
 		try {
-			return  blockingQueue.poll(timeout, unit);
+			return  blockingQueue.poll(timeout, timeoutUnit);
 		} catch (InterruptedException up) {
 			throw new RuntimeException(up);
 		}
@@ -54,16 +54,13 @@ public abstract class ObjectPool<T> {
 		return timeout;
 	}
 
-	public void setTimeout(long timeout) {
+	public TimeUnit getTimeoutUnit() {
+		return timeoutUnit;
+	}
+
+	public synchronized void setTimeout(long timeout, TimeUnit unit) {
 		this.timeout = timeout;
+		this.timeoutUnit = unit;
 	}
 
-	public TimeUnit getUnit() {
-		return unit;
-	}
-
-	public void setUnit(TimeUnit unit) {
-		this.unit = unit;
-	}
-	
 }
