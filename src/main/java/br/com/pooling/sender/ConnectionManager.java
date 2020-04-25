@@ -16,7 +16,7 @@ public class ConnectionManager implements ObjectPoolFactory<Channel> {
 	private final ConnectionFactory factory;
 	private Connection connection;
 
-	private ConnectionManager() throws IOException, TimeoutException {
+	private ConnectionManager() {
 		factory = new ConnectionFactory();
 //		factory.setHost("localhost");
 //		factory.setUsername(username);
@@ -26,24 +26,20 @@ public class ConnectionManager implements ObjectPoolFactory<Channel> {
 	}
 
 	public static ConnectionManager getInstance() {
-		try {
+		if (instance != null) {
+			return instance;
+		}
+
+		synchronized (ConnectionManager.class) {
 			if (instance != null) {
 				return instance;
 			}
-
-			synchronized (ConnectionManager.class) {
-				if (instance != null) {
-					return instance;
-				}
-				instance = new ConnectionManager();
-				return instance;
-			}
-		} catch (IOException | TimeoutException up) {
-			throw new RuntimeException(up);
+			instance = new ConnectionManager();
+			return instance;
 		}
 	}
 
-	private Connection manageConnection() throws IOException, TimeoutException {
+	private Connection manageConnection() {
 		if (connection != null && connection.isOpen()) {
 			return connection;
 		}
@@ -52,17 +48,23 @@ public class ConnectionManager implements ObjectPoolFactory<Channel> {
 			if (connection != null && connection.isOpen()) {
 				return connection;
 			}
-			connection = factory.newConnection();
+
+			try {
+				connection = factory.newConnection();
+			} catch (IOException | TimeoutException up) {
+				throw new RuntimeException(up);
+			}
+
 			return connection;
 		}
 	}
 
 	@Override
 	public Channel create() {
+		manageConnection();
 		try {
-			manageConnection();
 			return connection.createChannel();
-		} catch (IOException | TimeoutException up) {
+		} catch (IOException up) {
 			throw new RuntimeException(up);
 		}
 	}
