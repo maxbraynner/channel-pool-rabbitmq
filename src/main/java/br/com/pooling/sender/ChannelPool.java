@@ -24,7 +24,7 @@ public class ChannelPool extends ObjectPool<Channel> {
 			if (instance != null) {
 				return instance;
 			}
-			instance = new ChannelPool(ConnectionManager.getInstance(), POOL_SIZE);
+			instance = new ChannelPool(ChannelFactory.getInstance(), POOL_SIZE);
 			return instance;
 		}
 	}

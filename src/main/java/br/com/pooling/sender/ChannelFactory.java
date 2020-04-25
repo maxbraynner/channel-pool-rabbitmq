@@ -9,14 +9,14 @@ import com.rabbitmq.client.ConnectionFactory;
 
 import br.com.pooling.objectpool.ObjectPoolFactory;
 
-public class ConnectionManager implements ObjectPoolFactory<Channel> {
+public class ChannelFactory implements ObjectPoolFactory<Channel> {
 
-	private static ConnectionManager instance;
+	private static ChannelFactory instance;
 
 	private final ConnectionFactory factory;
 	private Connection connection;
 
-	private ConnectionManager() {
+	private ChannelFactory() {
 		factory = new ConnectionFactory();
 //		factory.setHost("localhost");
 //		factory.setUsername(username);
@@ -25,16 +25,16 @@ public class ConnectionManager implements ObjectPoolFactory<Channel> {
 		manageConnection();
 	}
 
-	public static ConnectionManager getInstance() {
+	public static ChannelFactory getInstance() {
 		if (instance != null) {
 			return instance;
 		}
 
-		synchronized (ConnectionManager.class) {
+		synchronized (ChannelFactory.class) {
 			if (instance != null) {
 				return instance;
 			}
-			instance = new ConnectionManager();
+			instance = new ChannelFactory();
 			return instance;
 		}
 	}

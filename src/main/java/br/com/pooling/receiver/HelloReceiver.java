@@ -3,13 +3,13 @@ package br.com.pooling.receiver;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
 
-import br.com.pooling.sender.ConnectionManager;
+import br.com.pooling.sender.ChannelFactory;
 import br.com.pooling.sender.Queue;
 
 public class HelloReceiver {
 
 	public static void main(String[] argv) throws Exception {
-		Channel channel = ConnectionManager.getInstance().create();
+		Channel channel = ChannelFactory.getInstance().create();
 
 		System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 		
