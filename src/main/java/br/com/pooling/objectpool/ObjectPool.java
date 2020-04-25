@@ -8,7 +8,7 @@ public abstract class ObjectPool<T> {
 
 	private final ObjectPoolFactory<T> factory;
 	private final BlockingQueue<T> blockingQueue;
-	
+
 	private long timeout = 60;
 	private TimeUnit timeoutUnit = TimeUnit.SECONDS;
 
@@ -16,38 +16,42 @@ public abstract class ObjectPool<T> {
 		super();
 		this.factory = factory;
 		blockingQueue = new LinkedBlockingDeque<T>(poolSize);
-		
+
 		for (int i = 0; i < poolSize; i++) {
 			blockingQueue.add(factory.create());
 		}
 	}
-	
+
 	public <R> R execute(ObjectPoolExecutor<T, R> executor) {
 		T object = poll();
-		
+
 		if (!validate(object)) {
 			object = factory.create();
 		}
-		
-		 R result = executor.execute(object);
-		 
-		 blockingQueue.add(object);
-		 
-		 return result;
+
+		R result;
+		try {
+			result = executor.execute(object);
+		} finally {
+			blockingQueue.add(object);
+		}
+
+		return result;
 	}
 
 	/**
 	 * recupera um objeto na fila
+	 * 
 	 * @return
 	 */
 	private T poll() {
 		try {
-			return  blockingQueue.poll(timeout, timeoutUnit);
+			return blockingQueue.poll(timeout, timeoutUnit);
 		} catch (InterruptedException up) {
 			throw new RuntimeException(up);
 		}
 	}
-	
+
 	protected abstract boolean validate(T object);
 
 	public long getTimeout() {
